@@ -3,7 +3,7 @@
   "version": "1.1.5",
   "license": "AGPL-3.0-only",
   "description": "openIMIS Frontend Claim reference module",
-  "repository": "openimis/openimis-fe-claim_js",
+  "repository": "NepalEHR/openimis-fe-claim_js",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",

@@ -13,6 +13,7 @@ import ClaimAdminPicker from "../pickers/ClaimAdminPicker";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
 import { claimHealthFacilitySet, validateClaimCode } from "../actions";
 import ClaimStatusPicker from "../pickers/ClaimStatusPicker";
+import SchemeTypePicker from "../pickers/SchemeTypePicker";
 import FeedbackStatusPicker from "../pickers/FeedbackStatusPicker";
 import ReviewStatusPicker from "../pickers/ReviewStatusPicker";
 import _debounce from "lodash/debounce";
@@ -160,6 +161,20 @@ class ClaimMasterPanel extends FormPanel {
                         />
                     </Grid>
                 } />
+                <ControlledField module="claim" id="Claim.SchemeType" field={
+                    <Grid item xs={forFeedback || forReview ? 2 : 3} className={classes.item}>
+                        <PublishedComponent
+                            id="claim.SchemeTypePicker"
+                            name="SchemeType"
+                            withNull={false}
+                            value={edited.SchemeType}
+                            reset={reset}
+                            onChange={(v, s) => this.updateAttribute("SchemeType", v)}
+                            readOnly={ro}
+                            required={true}
+                        />
+                    </Grid>
+                } />
                 <ControlledField module="claim" id="Claim.visitType" field={
                     <Grid item xs={forFeedback || forReview ? 2 : 3} className={classes.item}>
                         <PublishedComponent
@@ -245,6 +260,14 @@ class ClaimMasterPanel extends FormPanel {
                                 <ReviewStatusPicker
                                     readOnly={true}
                                     value={edited.reviewStatus}
+                                />
+                            </Grid>
+                        } />
+<ControlledField module="claim" id="Claim.schemeType" field={
+                            <Grid item xs={2} className={classes.item}>
+                                <SchemeTypePicker
+                                    readOnly={true}
+                                    value={edited.status}
                                 />
                             </Grid>
                         } />

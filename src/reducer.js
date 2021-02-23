@@ -144,6 +144,32 @@ function reducer(
                 fetchingClaimOfficers: false,
                 errorClaimOfficers: formatServerError(action.payload)
             };
+
+
+        case 'CLAIM_CLAIM_SSF_REQ':
+            return {
+                ...state,
+                fetchingClaimSsf: true,
+                fetchedClaimSsf: false,
+                claimSsf: null,
+                errorClaimSsf: null,
+            };
+        case 'CLAIM_CLAIM_SSF_RESP':
+            return {
+                ...state,
+                fetchingClaimSsf: false,
+                fetchedClaimSsf: true,
+                claimSsf: parseData(action.payload.data.ssf),
+                errorClaimSsf: formatGraphQLError(action.payload)
+            };
+        case 'CLAIM_CLAIM_SSF_ERR':
+            return {
+                ...state,
+                fetchingClaimSsf: false,
+                errorClaimSsf: formatServerError(action.payload)
+            };
+
+
         case 'CLAIM_CLAIM_SEARCHER_REQ':
             return {
                 ...state,

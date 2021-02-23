@@ -9,7 +9,7 @@ import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, withModulesManager,
     ControlledField, PublishedComponent,
-    TextInput, AmountInput, Contributions,
+    TextInput, AmountInput, Contributions,decodeId
 } from "@openimis/fe-core";
 import { selectClaimAdmin, selectHealthFacility, selectDistrict, selectRegion } from "../actions";
 
@@ -285,6 +285,21 @@ class Details extends Component {
                                 id: 'reviewStatus',
                                 value: v,
                                 filter: `reviewStatus: ${v}`
+                            }
+                        ])}
+                    />
+                </Grid>
+                
+                <Grid item xs={2} className={classes.item}>
+                    <PublishedComponent
+                        id="claim.SchemeTypePicker"
+                        name="ssfScheme"
+                        value={(filters['ssfScheme'] && filters['ssfScheme']['value'])}
+                        onChange={(v, s) => onChangeFilters([
+                            {
+                                id: 'ssfScheme',
+                                value: v,
+                                filter: `schemeType: ${decodeId(v.id)}`
                             }
                         ])}
                     />

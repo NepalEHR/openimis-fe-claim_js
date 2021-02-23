@@ -23,6 +23,14 @@ export function fetchClaimAdmins(mm, hf, str, prev) {
   );
   return graphql(payload, 'CLAIM_CLAIM_ADMINS', filters);
 }
+export function fetchSchemeType(mm) {
+  const payload = formatPageQuery("ssf",
+    null,
+    mm.getRef("claim.SchemeTypePicker.projection")
+  );
+  return graphql(payload, 'CLAIM_CLAIM_SSF');
+}
+
 
 export function selectClaimAdmin(admin) {
   return dispatch => {
@@ -143,7 +151,7 @@ export function downloadAttachment(attach) {
 
 export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
   var projections = [
-    "uuid", "code", "jsonExt", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
+    "uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
     "clientMutationId",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
@@ -186,6 +194,7 @@ export function formatAttachments(mm, attachments) {
 }
 
 export function formatClaimGQL(mm, claim) {
+  debugger;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
     code: "${claim.code}"
@@ -198,11 +207,11 @@ export function formatClaimGQL(mm, claim) {
     ${!!claim.icd2 ? `icd2Id: ${decodeId(claim.icd2.id)}` : ""}
     ${!!claim.icd3 ? `icd3Id: ${decodeId(claim.icd3.id)}` : ""}
     ${!!claim.icd4 ? `icd4Id: ${decodeId(claim.icd4.id)}` : ""}
-    ${`jsonExt: ${formatJsonField(claim.jsonExt)}`}
     feedbackStatus: ${mm.getRef("claim.CreateClaim.feedbackStatus")}
     reviewStatus: ${mm.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
     healthFacilityId: ${decodeId(claim.healthFacility.id)}
+    schemeType: ${decodeId(claim.SchemeType.id)}
     visitType: "${claim.visitType}"
     ${!!claim.guaranteeId ? `guaranteeId: "${claim.guaranteeId}"` : ""}
     ${!!claim.explanation ? `explanation: "${claim.explanation}"` : ""}
@@ -251,6 +260,7 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
     "visitType" + mm.getProjection("medical.VisitTypePicker.projection"),
+    "schemeType" + mm.getProjection("medical.SchemeTypePicker.projection"),
     "admin" + mm.getProjection("claim.ClaimAdminPicker.projection"),
     "icd" + mm.getProjection("medical.DiagnosisPicker.projection"),
     "icd1" + mm.getProjection("medical.DiagnosisPicker.projection"),

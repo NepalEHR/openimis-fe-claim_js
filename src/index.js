@@ -7,6 +7,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import ClaimAdminPicker from "./pickers/ClaimAdminPicker";
 import ClaimOfficerPicker from "./pickers/ClaimOfficerPicker";
 import ClaimStatusPicker from "./pickers/ClaimStatusPicker";
+import SchemeTypePicker from "./pickers/SchemeTypePicker";
 import ReviewStatusPicker from "./pickers/ReviewStatusPicker";
 import ApprovalStatusPicker from "./pickers/ApprovalStatusPicker";
 import RejectionReasonPicker from "./pickers/RejectionReasonPicker";
@@ -41,7 +42,9 @@ const DEFAULT_CONFIG = {
     { key: "claim.ClaimOfficerPicker", ref: ClaimOfficerPicker },
     { key: "claim.ClaimOfficerPicker.projection", ref: ["id", "uuid", "code", "lastName", "otherNames"] },
     { key: "claim.ClaimStatusPicker", ref: ClaimStatusPicker },
+    { key: "claim.SchemeTypePicker", ref: SchemeTypePicker },
     { key: "claim.ClaimStatusPicker.projection", ref: null },
+    { key: "claim.SchemeTypePicker.projection", ref: ["id", "SCHNameEng","SCHAPPId"]},
     { key: "claim.ReviewStatusPicker", ref: ReviewStatusPicker },
     { key: "claim.ReviewStatusPicker.projection", ref: null },
     { key: "claim.ApprovalStatusPicker", ref: ApprovalStatusPicker },
