@@ -11,13 +11,12 @@ import { Grid } from "@material-ui/core";
 import _ from "lodash";
 import ClaimAdminPicker from "../pickers/ClaimAdminPicker";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
-import { claimHealthFacilitySet, validateClaimCode } from "../actions";
+import { claimHealthFacilitySet, validateClaimCode, createClaimCode } from "../actions";
 import ClaimStatusPicker from "../pickers/ClaimStatusPicker";
 import SchemeTypePicker from "../pickers/SchemeTypePicker";
 import FeedbackStatusPicker from "../pickers/FeedbackStatusPicker";
 import ReviewStatusPicker from "../pickers/ReviewStatusPicker";
 import _debounce from "lodash/debounce";
-
 const CLAIM_MASTER_PANEL_CONTRIBUTION_KEY = "claim.MasterPanel"
 
 const styles = theme => ({
@@ -32,11 +31,13 @@ class ClaimMasterPanel extends FormPanel {
     state = {
         claimCode: null,
         claimCodeError: null,
+        generatedCodedValue: null,
+        gotCode: false
     }
 
     constructor(props) {
         super(props);
-        this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
+        this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 24);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
         this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
         this.insureePicker = props.modulesManager.getConf("fe-claim", "claimForm.insureePicker", "insuree.InsureeChfIdPicker");
@@ -44,6 +45,14 @@ class ClaimMasterPanel extends FormPanel {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this._componentDidUpdate(prevProps, prevState, snapshot)) return;
+        if (prevProps.generatedClaimCode && this.state.gotCode == false) {
+            console.log("/*/-*/-*/-*/-*/-*/-*/-*/*-/-*/-*/")
+            this.setState({ 
+                gotCode: true,
+                generatedCodedValue: prevProps.generatedClaimCode
+            })
+        }
+
         if (!prevProps.fetchingClaimCodeCount && this.props.fetchingClaimCodeCount) {
             this.setState({ claimCodeError: null })
         } else if (!prevProps.fetchedClaimCodeCount && this.props.fetchedClaimCodeCount) {
@@ -56,8 +65,18 @@ class ClaimMasterPanel extends FormPanel {
                     codeError: null
                 })
             }
+
+
         }
+
     }
+
+    createClaimCoder = (v) => {
+        // let claimCode = "";
+        let cdata = this.props.createClaimCode(v)
+        // return claimCode
+    }
+
 
     validateClaimCode = (v) => {
         this.setState(
@@ -68,6 +87,8 @@ class ClaimMasterPanel extends FormPanel {
             e => this.props.validateClaimCode(v)
         )
     }
+
+
 
     debounceUpdateCode = _debounce(
         this.validateClaimCode,
@@ -94,6 +115,16 @@ class ClaimMasterPanel extends FormPanel {
         edited.claimed = _.round(totalClaimed, 2);
         edited.approved = _.round(totalApproved, 2);
         let ro = readOnly || !!forReview || !!forFeedback;
+        // debugger;
+        let hfcodedata = null;
+        try {
+            hfcodedata = edited.healthFacility.code
+        } catch (error) {
+
+        }
+        this.createClaimCoder(hfcodedata)
+        // let hfcodedata = edited.healthFacility.location.code? edited.healthFacility.location.code : null; 
+        // debugger;
         return (
             <Grid container>
                 <ControlledField module="claim" id="Claim.healthFacility" field={
@@ -166,8 +197,7 @@ class ClaimMasterPanel extends FormPanel {
                         <PublishedComponent
                             id="claim.SchemeTypePicker"
                             name="SchemeType"
-                            withNull={false}
-                            value={edited.SchemeType}
+                            withNull={true}
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("SchemeType", v)}
                             readOnly={ro}
@@ -211,7 +241,7 @@ class ClaimMasterPanel extends FormPanel {
                             module="claim"
                             label="code"
                             required
-                            value={edited.code}
+                            value={this.state.generatedCodedValue}
                             error={this.state.claimCodeError}
                             reset={reset}
                             onChange={this.debounceUpdateCode}
@@ -263,7 +293,7 @@ class ClaimMasterPanel extends FormPanel {
                                 />
                             </Grid>
                         } />
-<ControlledField module="claim" id="Claim.schemeType" field={
+                        <ControlledField module="claim" id="Claim.schemeType" field={
                             <Grid item xs={2} className={classes.item}>
                                 <SchemeTypePicker
                                     readOnly={true}
@@ -405,7 +435,7 @@ class ClaimMasterPanel extends FormPanel {
                         }
                     </Fragment>
                 }
-                <Contributions 
+                <Contributions
                     claim={edited}
                     readOnly={ro}
                     updateAttribute={this.updateAttribute}
@@ -419,16 +449,18 @@ class ClaimMasterPanel extends FormPanel {
     }
 }
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = (state, props) =>
+({
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     fetchingClaimCodeCount: state.claim.fetchingClaimCodeCount,
     fetchedClaimCodeCount: state.claim.fetchedClaimCodeCount,
     claimCodeCount: state.claim.claimCodeCount,
     errorClaimCodeCount: state.claim.errorClaimCodeCount,
+    generatedClaimCode: state.claim.generatedClaimCode
 })
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ claimHealthFacilitySet, validateClaimCode }, dispatch);
+    return bindActionCreators({ claimHealthFacilitySet, validateClaimCode, createClaimCode }, dispatch);
 };
 
 export default withModulesManager(

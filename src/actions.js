@@ -56,6 +56,31 @@ export function selectRegion(region) {
   }
 }
 
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+var _$2 = _interopDefault(require('lodash-uuid'));
+
+function formatCodeMutation(service, input, clientMutationLabel, clientMutationDetails) {
+  var clientMutationId = _$2.uuid();
+  var payload = "\n    mutation {\n      " + service + "(\n        input: {\n          clientMutationId: \"" + clientMutationId + "\"\n          clientMutationLabel: \"" + clientMutationLabel + "\"\n          " + (!!clientMutationDetails ? "clientMutationDetails: " + JSON.stringify(clientMutationDetails) : "") + "\n          " + input.trim() + "\n        }\n      ) {\n    clientMutationId\n        internalId\n     generatedCodedValue\n        hospitalCode\n      }\n    }";
+  return { clientMutationId: clientMutationId, payload: payload };
+}
+
+export function createClaimCode(codeValue, clientMutationLabel) {
+  let payload = "codedValue: \""+codeValue+"\"";
+  let mutation = formatCodeMutation("claimCode", payload, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    [ 'CLAIM_MUTATION_REQ', 'CLAIM_CREATE_CODE_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+
 export function validateClaimCode(code) {
   const payload = formatQuery(
     "claims",
@@ -194,7 +219,7 @@ export function formatAttachments(mm, attachments) {
 }
 
 export function formatClaimGQL(mm, claim) {
-  debugger;
+  // debugger;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
     code: "${claim.code}"
@@ -211,7 +236,7 @@ export function formatClaimGQL(mm, claim) {
     reviewStatus: ${mm.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
     healthFacilityId: ${decodeId(claim.healthFacility.id)}
-    schemeType: ${decodeId(claim.SchemeType.id)}
+    ${!!claim.SchemeType ? `schemeType: ${decodeId(claim.SchemeType.id)}` : ""}
     visitType: "${claim.visitType}"
     ${!!claim.guaranteeId ? `guaranteeId: "${claim.guaranteeId}"` : ""}
     ${!!claim.explanation ? `explanation: "${claim.explanation}"` : ""}

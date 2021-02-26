@@ -36,6 +36,7 @@ function reducer(
         fetchedClaimCodeCount: false,
         claimCodeCount: null,
         errorClaimCodeCount: null,
+        generatedClaimCode:null
     },
     action,
 ) {
@@ -138,6 +139,13 @@ function reducer(
                 claimOfficers: parseData(action.payload.data.claimOfficers),
                 errorClaimOfficers: formatGraphQLError(action.payload)
             };
+
+        case 'CLAIM_CREATE_CODE_RESP':
+            return {
+                ...state,
+               generatedClaimCode: action.payload.data.claimCode.generatedCodedValue
+            };
+
         case 'CLAIM_CLAIM_OFFICERS_ERR':
             return {
                 ...state,
