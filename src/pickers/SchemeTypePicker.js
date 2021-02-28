@@ -42,7 +42,7 @@ class SchemeTypePicker  extends Component {
             intl, value, reset, claimSsf,
             fetchingClaimSsf, fetchedClaimSsf, errorClaimSsf,
             withLabel = true, label, readOnly = false, required = false,
-            withNull = false, nullLabel = null,
+            withNull = true, nullLabel = null,
         } = this.props;
         let v = claimSsf ? claimSsf.filter(o => parseInt(decodeId(o.id)) === value) : [];
         v = v.length ? v[0] : null;

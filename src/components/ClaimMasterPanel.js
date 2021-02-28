@@ -29,10 +29,9 @@ const styles = theme => ({
 class ClaimMasterPanel extends FormPanel {
 
     state = {
-        claimCode: null,
-        claimCodeError: null,
-        generatedCodedValue: null,
-        gotCode: false
+        code: null,
+        claimCodeError: false,
+        gotCode:false
     }
 
     constructor(props) {
@@ -43,15 +42,9 @@ class ClaimMasterPanel extends FormPanel {
         this.insureePicker = props.modulesManager.getConf("fe-claim", "claimForm.insureePicker", "insuree.InsureeChfIdPicker");
     }
 
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this._componentDidUpdate(prevProps, prevState, snapshot)) return;
-        if (prevProps.generatedClaimCode && this.state.gotCode == false) {
-            console.log("/*/-*/-*/-*/-*/-*/-*/-*/*-/-*/-*/")
-            this.setState({ 
-                gotCode: true,
-                generatedCodedValue: prevProps.generatedClaimCode
-            })
-        }
 
         if (!prevProps.fetchingClaimCodeCount && this.props.fetchingClaimCodeCount) {
             this.setState({ claimCodeError: null })
@@ -70,15 +63,15 @@ class ClaimMasterPanel extends FormPanel {
         }
 
     }
-
     createClaimCoder = (v) => {
         // let claimCode = "";
-        let cdata = this.props.createClaimCode(v)
+        this.props.createClaimCode(v)
         // return claimCode
     }
 
 
     validateClaimCode = (v) => {
+        console.log(v);
         this.setState(
             {
                 claimCodeError: null,
@@ -96,7 +89,7 @@ class ClaimMasterPanel extends FormPanel {
     )
 
     render() {
-        const { intl, classes, edited, reset, readOnly = false, forReview, roReview = false, forFeedback } = this.props;
+        const { intl, classes, edited, reset, readOnly = false, forReview, roReview = false, forFeedback, generatedClaimCode } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -115,16 +108,29 @@ class ClaimMasterPanel extends FormPanel {
         edited.claimed = _.round(totalClaimed, 2);
         edited.approved = _.round(totalApproved, 2);
         let ro = readOnly || !!forReview || !!forFeedback;
-        // debugger;
         let hfcodedata = null;
         try {
             hfcodedata = edited.healthFacility.code
+            if (hfcodedata != null) {
+                this.createClaimCoder(hfcodedata)
+            }
         } catch (error) {
 
         }
-        this.createClaimCoder(hfcodedata)
-        // let hfcodedata = edited.healthFacility.location.code? edited.healthFacility.location.code : null; 
-        // debugger;
+
+        if(generatedClaimCode != null && this.state.gotCode == false)
+        {
+            this.setState(
+                {
+                    claimCodeError: null,
+                    claimCode: generatedClaimCode,
+                    gotCode:true
+                },
+                e => this.props.validateClaimCode(generatedClaimCode)
+            )
+        }
+
+
         return (
             <Grid container>
                 <ControlledField module="claim" id="Claim.healthFacility" field={
@@ -241,7 +247,7 @@ class ClaimMasterPanel extends FormPanel {
                             module="claim"
                             label="code"
                             required
-                            value={this.state.generatedCodedValue}
+                            value={generatedClaimCode}
                             error={this.state.claimCodeError}
                             reset={reset}
                             onChange={this.debounceUpdateCode}
@@ -449,8 +455,7 @@ class ClaimMasterPanel extends FormPanel {
     }
 }
 
-const mapStateToProps = (state, props) =>
-({
+const mapStateToProps = (state, props) => ({
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     fetchingClaimCodeCount: state.claim.fetchingClaimCodeCount,
     fetchedClaimCodeCount: state.claim.fetchedClaimCodeCount,
